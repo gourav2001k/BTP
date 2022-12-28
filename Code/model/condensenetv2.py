@@ -86,6 +86,8 @@ class CondenseNetV2(nn.Module):
         args.stages = '1-1-4-6-8'
         args.growth = '8-8-16-32-64'
         print('Stages: {}, Growth: {}'.format(args.stages, args.growth))
+        args.num_classes = 1000
+        args.IMAGE_SIZE = 224
         args.stages = list(map(int, args.stages.split('-')))
         args.growth = list(map(int, args.growth.split('-')))
         args.condense_factor = 8
@@ -183,6 +185,5 @@ class CondenseNetV2(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
 
-def cdnv2_a(args):
-    
-    return CondenseNetV2(args)
+def cdnv2_a():
+    return CondenseNetV2()
