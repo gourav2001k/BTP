@@ -1,8 +1,28 @@
 import torch
 import torch.nn as nn
+import argparse
 from utils import Conv, LGC, SFR, HS, SELayer
 
-__all__ = ['CondenseNetV2', 'cdnv2_a', 'cdnv2_b', 'cdnv2_c']
+__all__ = ['CondenseNetV2', 'cdnv2_a']
+
+
+parser = argparse.ArgumentParser(description='PyTorch Condensed Convolutional Networks')
+parser.add_argument('--data_url', metavar='DIR', default='~/data',
+                    help='path to dataset')
+parser.add_argument('--dataset', metavar='DATASET', default='imagenet', choices=['cifar10', 'cifar100', 'imagenet'],
+                    help='dataset')
+parser.add_argument('--model', default='condensenetv2.cdnv2_a', type=str, metavar='M',
+                    help='model to train the dataset')
+parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
+                    help='number of data loading workers (default: 4)')
+parser.add_argument('-b', '--batch_size', default=1024, type=int,
+                    metavar='N', help='mini-batch size (default: 256)')
+parser.add_argument('--train_url', type=str, metavar='PATH', default='test',
+                    help='path to save result and checkpoint (default: results/savedir)')
+parser.add_argument('--evaluate_from', default=None, type=str, metavar='PATH',
+                    help='path to saved checkpoint (default: none)')
+parser.add_argument('--print_freq', '-p', default=100, type=int,
+                    metavar='N', help='print frequency (default: 10)')
 
 
 class _SFR_DenseLayer(nn.Module):
@@ -58,9 +78,26 @@ class _Transition(nn.Module):
 
 
 class CondenseNetV2(nn.Module):
-    def __init__(self, args):
+    def __init__(self):
 
         super(CondenseNetV2, self).__init__()
+
+        args = parser.parse_args()
+        args.stages = '1-1-4-6-8'
+        args.growth = '8-8-16-32-64'
+        print('Stages: {}, Growth: {}'.format(args.stages, args.growth))
+        args.stages = list(map(int, args.stages.split('-')))
+        args.growth = list(map(int, args.growth.split('-')))
+        args.condense_factor = 8
+        args.trans_factor = 8
+        args.group_1x1 = 8
+        args.group_3x3 = 8
+        args.group_trans = 8
+        args.bottleneck = 4
+        args.last_se_reduction = 16
+        args.HS_start_block = 2
+        args.SE_start_block = 3
+        args.fc_channel = 828
 
         self.stages = args.stages
         self.growth = args.growth
@@ -147,56 +184,5 @@ class CondenseNetV2(nn.Module):
 
 
 def cdnv2_a(args):
-    args.stages = '1-1-4-6-8'
-    args.growth = '8-8-16-32-64'
-    print('Stages: {}, Growth: {}'.format(args.stages, args.growth))
-    args.stages = list(map(int, args.stages.split('-')))
-    args.growth = list(map(int, args.growth.split('-')))
-    args.condense_factor = 8
-    args.trans_factor = 8
-    args.group_1x1 = 8
-    args.group_3x3 = 8
-    args.group_trans = 8
-    args.bottleneck = 4
-    args.last_se_reduction = 16
-    args.HS_start_block = 2
-    args.SE_start_block = 3
-    args.fc_channel = 828
-    return CondenseNetV2(args)
-
-
-def cdnv2_b(args):
-    args.stages = '2-4-6-8-6'
-    args.growth = '6-12-24-48-96'
-    print('Stages: {}, Growth: {}'.format(args.stages, args.growth))
-    args.stages = list(map(int, args.stages.split('-')))
-    args.growth = list(map(int, args.growth.split('-')))
-    args.condense_factor = 6
-    args.trans_factor = 6
-    args.group_1x1 = 6
-    args.group_3x3 = 6
-    args.group_trans = 6
-    args.bottleneck = 4
-    args.last_se_reduction = 16
-    args.HS_start_block = 2
-    args.SE_start_block = 3
-    args.fc_channel = 1024
-    return CondenseNetV2(args)
-
-
-def cdnv2_c(args):
-    args.stages = '4-6-8-10-8'
-    args.growth = '8-16-32-64-128'
-    args.stages = list(map(int, args.stages.split('-')))
-    args.growth = list(map(int, args.growth.split('-')))
-    args.condense_factor = 8
-    args.trans_factor = 8
-    args.group_1x1 = 8
-    args.group_3x3 = 8
-    args.group_trans = 8
-    args.bottleneck = 4
-    args.last_se_reduction = 16
-    args.HS_start_block = 2
-    args.SE_start_block = 3
-    args.fc_channel = 1024
+    
     return CondenseNetV2(args)

@@ -47,7 +47,7 @@ def main():
         os.makedirs(args.train_url)
 
     ### Create Model
-    model = eval(args.model)(args)
+    model = eval(args.model)()
 
     assert args.evaluate_from is not None, "Please give the checkpoint path of the model which is used to be " \
                                           "evaluated!"
