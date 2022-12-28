@@ -32,14 +32,13 @@ class HS(nn.Module):
 
 
 class LGC(nn.Module):
-    global_progress = 0.0
-
     def __init__(self, in_channels, out_channels, kernel_size, stride=1,
                  padding=0, dilation=1, groups=1, condense_factor=None,
                  dropout_rate=0., activation='ReLU', bn_momentum=0.1):
         super(LGC, self).__init__()
         self.norm = nn.BatchNorm2d(in_channels, momentum=bn_momentum)
         self.activation_type = activation
+        self.global_progress = 0.0
         if activation == 'ReLU':
             self.add_module('activation', nn.ReLU(inplace=True))
         elif activation == 'HS':
@@ -78,13 +77,13 @@ class LGC(nn.Module):
                         self.conv.padding, self.conv.dilation, 1)
 
     def _check_drop(self):
-        progress = LGC.global_progress
-        delta = 0
+        progress = self.global_progress
+        delta, stage = 0, -1
         if progress * 2 < (1 + 1e-3):
             ### Get current stage
             for i in range(self.condense_factor - 1):
+                stage = i
                 if progress * 2 < (i + 1) / (self.condense_factor - 1):
-                    stage = i
                     break
             else:
                 stage = self.condense_factor - 1
@@ -96,7 +95,7 @@ class LGC(nn.Module):
                 self._dropping(delta)
         return
 
-    def _dropping(self, delta):
+    def _dropping(self, delta: int):
         print('LearnedGroupConv dropping')
         weight = self.conv.weight * self.mask
         ### Sum up all kernels
@@ -124,7 +123,7 @@ class LGC(nn.Module):
         return int(self._count[0])
 
     @count.setter
-    def count(self, val):
+    def count(self, val: int):
         self._count.fill_(val)
 
     @property
@@ -132,20 +131,21 @@ class LGC(nn.Module):
         return int(self._stage[0])
 
     @stage.setter
-    def stage(self, val):
+    def stage(self, val: int):
         self._stage.fill_(val)
 
     @property
     def mask(self):
         return self._mask
 
-    def _reach_stage(self, stage):
+    def _reach_stage(self, stage: int):
         return (self._stage >= stage).all()
 
     @property
     def lasso_loss(self):
         if self._reach_stage(self.groups - 1):
-            return 0
+            t=torch.tensor([0])
+            return t.sum()
         weight = self.conv.weight * self.mask
         ### Assume only apply to 1x1 conv to speed up
         assert weight.size()[-1] == 1
@@ -158,14 +158,13 @@ class LGC(nn.Module):
 
 
 class SFR(nn.Module):
-    global_progress = 0.0
-
     def __init__(self, in_channels, out_channels, kernel_size, stride=1,
                  padding=0, dilation=1, groups=1, condense_factor=None,
                  dropout_rate=0., activation='ReLU', bn_momentum=0.1):
         super(SFR, self).__init__()
         self.norm = nn.BatchNorm2d(in_channels, momentum=bn_momentum)
         self.activation_type = activation
+        self.global_progress = 0.0
         if activation == 'ReLU':
             self.add_module('activation', nn.ReLU(inplace=True))
         elif activation == 'HS':
@@ -206,7 +205,7 @@ class SFR(nn.Module):
                         self.conv.padding, self.conv.dilation, 1)
 
     def _check_drop(self):
-        progress = SFR.global_progress
+        progress = self.global_progress
         delta = 0
         if progress * 2 < (1 + 1e-3):
             ### Get current stage
@@ -224,7 +223,7 @@ class SFR(nn.Module):
                 self._dropping(delta)
         return
 
-    def _dropping(self, delta):
+    def _dropping(self, delta: int):
         print('LearnedGroupConvTrans dropping')
         weight = self.conv.weight * self.mask
         ### Sum up all kernels
@@ -252,7 +251,7 @@ class SFR(nn.Module):
         return int(self._count[0])
 
     @count.setter
-    def count(self, val):
+    def count(self, val: int):
         self._count.fill_(val)
 
     @property
@@ -260,14 +259,14 @@ class SFR(nn.Module):
         return int(self._stage[0])
 
     @stage.setter
-    def stage(self, val):
+    def stage(self, val: int):
         self._stage.fill_(val)
 
     @property
     def mask(self):
         return self._mask
 
-    def _reach_stage(self, stage):
+    def _reach_stage(self, stage: int):
         return (self._stage >= stage).all()
 
     @property

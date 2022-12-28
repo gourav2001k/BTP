@@ -66,13 +66,13 @@ def main():
             new_state_dict[k] = v
 
     model.load_state_dict(new_state_dict)
-    model = nn.DataParallel(model).cuda()
+    model = model.cuda()
     print("=> Load checkpoint done!")
 
     model.eval()
     example = torch.rand(1, 3, 224, 224)
     example=example.cuda()
-    traced_script_module = torch.jit.trace(model, (example,0))
+    traced_script_module = torch.jit.trace(model, example)
     traced_script_module_optimized = optimize_for_mobile(traced_script_module)
     traced_script_module_optimized._save_for_lite_interpreter("model.ptl")
 

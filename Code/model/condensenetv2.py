@@ -163,11 +163,7 @@ class CondenseNetV2(nn.Module):
             self.features.add_module('se_last',
                                      SELayer(self.num_features, reduction=self.args.last_se_reduction))
 
-    def forward(self, X):
-        x,progress=X
-        if progress:
-            LGC.global_progress = progress
-            SFR.global_progress = progress
+    def forward(self, x):
         features = self.features(x)
         out = features.view(features.size(0), -1)
         out = self.fc(out)
