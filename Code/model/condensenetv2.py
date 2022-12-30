@@ -45,8 +45,7 @@ class _SFR_DenseLayer(nn.Module):
         self.sfr = SFR(growth_rate, in_channels, kernel_size=1,
                        groups=self.group_trans, condense_factor=args.trans_factor,
                        activation=activation)
-        if self.use_se:
-            self.se = SELayer(inplanes=growth_rate, reduction=1)
+        self.se = SELayer(inplanes=growth_rate, reduction=1)
 
     def forward(self, x):
         x_ = x

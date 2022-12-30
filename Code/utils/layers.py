@@ -46,8 +46,7 @@ class LGC(nn.Module):
         else:
             raise NotImplementedError
         self.dropout_rate = dropout_rate
-        if self.dropout_rate > 0:
-            self.drop = nn.Dropout(dropout_rate, inplace=False)
+        self.drop = nn.Dropout(dropout_rate, inplace=False)
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride,
                               padding, dilation, groups=1, bias=False)
         self.in_channels = in_channels
@@ -172,8 +171,7 @@ class SFR(nn.Module):
         else:
             raise NotImplementedError
         self.dropout_rate = dropout_rate
-        if self.dropout_rate > 0:
-            self.drop = nn.Dropout(dropout_rate, inplace=False)
+        self.drop = nn.Dropout(dropout_rate, inplace=False)
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride,
                               padding, dilation, groups=1, bias=False)
         self.in_channels = in_channels
@@ -206,12 +204,11 @@ class SFR(nn.Module):
 
     def _check_drop(self):
         progress = self.global_progress
-        delta = 0
+        delta, stage = 0, -1
         if progress * 2 < (1 + 1e-3):
             ### Get current stage
             for i in range(self.condense_factor - 1):
                 if progress * 2 < (i + 1) / (self.condense_factor - 1):
-                    stage = i
                     break
             else:
                 stage = self.condense_factor - 1
