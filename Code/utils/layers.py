@@ -269,7 +269,8 @@ class SFR(nn.Module):
     @property
     def lasso_loss(self):
         if self._reach_stage(self.groups - 1):
-            return 0
+            t=torch.tensor([0])
+            return t.sum()
         weight = self.conv.weight * self.mask
         ### Assume only apply to 1x1 conv to speed up
         assert weight.size()[-1] == 1

@@ -72,7 +72,7 @@ def main():
     model.eval()
     example = torch.rand(1, 3, 224, 224)
     example=example.cuda()
-    traced_script_module = torch.jit.trace(model, example)
+    traced_script_module = torch.jit.script(model, example)
     traced_script_module_optimized = optimize_for_mobile(traced_script_module)
     traced_script_module_optimized._save_for_lite_interpreter("model.ptl")
 
