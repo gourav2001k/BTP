@@ -53,9 +53,10 @@ public class MainActivity extends AppCompatActivity {
       // creating bitmap from packaged into app android asset 'image.jpg',
       // app/src/main/assets/image.jpg
       bitmap = BitmapFactory.decodeStream(getAssets().open("image.jpg"));
+      bitmap = getResizedBitmap(bitmap,224);
       // loading serialized torchscript module from packaged into app android asset model.pt,
       // app/src/model/assets/model.pt
-      module = LiteModuleLoader.load(assetFilePath(this, "model2.pt"));
+      module = LiteModuleLoader.load(assetFilePath(this, "modelX.pt"));
     } catch (IOException e) {
       Log.e("PytorchHelloWorld", "Error reading assets", e);
       finish();
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
       imageView.setImageURI(imageUri);
       imageView.buildDrawingCache();
       bitmap=imageView.getDrawingCache();
+      bitmap = getResizedBitmap(bitmap,224);
       Log.i("Duration",Long.toString(processImage()));
     }
   }
@@ -129,11 +131,32 @@ public class MainActivity extends AppCompatActivity {
       }
     }
 
-    String className = ImageNetClasses.IMAGENET_CLASSES[maxScoreIdx];
+    String className = Cifar10Classes.CIFAR10_CLASSES[maxScoreIdx];
     long duration=  System.currentTimeMillis()-startTime;
     // showing className on UI
     TextView textView = findViewById(R.id.text);
     textView.setText(className);
     return duration;
+  }
+
+  /**
+   * reduces the size of the image
+   * @param image
+   * @param maxSize
+   * @return
+   */
+  protected Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+    int width = image.getWidth();
+    int height = image.getHeight();
+
+    float bitmapRatio = (float)width / (float) height;
+    if (bitmapRatio > 1) {
+      width = maxSize;
+      height = (int) (width / bitmapRatio);
+    } else {
+      height = maxSize;
+      width = (int) (height * bitmapRatio);
+    }
+    return Bitmap.createScaledBitmap(image, width, height, true);
   }
 }
