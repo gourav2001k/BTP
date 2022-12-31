@@ -163,6 +163,7 @@ class CondenseNetV2(nn.Module):
                                      SELayer(self.num_features, reduction=self.args.last_se_reduction))
 
     def forward(self, x):
+        x=torch.unsqueeze(x, 0)
         features = self.features(x)
         out = features.view(features.size(0), -1)
         out = self.fc(out)

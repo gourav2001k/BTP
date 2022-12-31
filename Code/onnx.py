@@ -70,7 +70,7 @@ def main():
     print("=> Load checkpoint done!")
 
     model.eval()
-    example = torch.rand(1, 3, 224, 224)
+    example = torch.rand(3, 224, 224)
     example=example.cuda()
     traced_script_module = torch.jit.script(model, example)
     traced_script_module_optimized = optimize_for_mobile(traced_script_module)
