@@ -74,7 +74,7 @@ def main():
     example=example.cuda()
     traced_script_module = torch.jit.script(model, example)
     traced_script_module_optimized = optimize_for_mobile(traced_script_module)
-    traced_script_module_optimized._save_for_lite_interpreter("model.ptl")
+    traced_script_module_optimized._save_for_lite_interpreter("condenseNet.pt")
 
 
 if __name__ == '__main__':
