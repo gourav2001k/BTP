@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
       bitmap = getResizedBitmap(bitmap,224);
       // loading serialized torchscript module from packaged into app android asset model.pt,
       // app/src/model/assets/model.pt
-      module = LiteModuleLoader.load(assetFilePath(this, "modelX.pt"));
+      module = LiteModuleLoader.load(assetFilePath(this, "condenseNet.pt"));
     } catch (IOException e) {
       Log.e("PytorchHelloWorld", "Error reading assets", e);
       finish();
@@ -146,17 +146,6 @@ public class MainActivity extends AppCompatActivity {
    * @return
    */
   protected Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-    int width = image.getWidth();
-    int height = image.getHeight();
-
-    float bitmapRatio = (float)width / (float) height;
-    if (bitmapRatio > 1) {
-      width = maxSize;
-      height = (int) (width / bitmapRatio);
-    } else {
-      height = maxSize;
-      width = (int) (height * bitmapRatio);
-    }
-    return Bitmap.createScaledBitmap(image, width, height, true);
+    return Bitmap.createScaledBitmap(image, maxSize, maxSize, true);
   }
 }
